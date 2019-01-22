@@ -9,9 +9,13 @@ import (
 // Pid is what we migrate
 // Memfd is the file descriptor via which criu can transfer memory pages.
 // Wdir is the directory where phaul can put images and other stuff
+// Port is the port of the Docker daemon
+// Address is the ip address of the Docker daemon
 type Config struct {
 	Pid   int
 	Memfd int
+	Port  int32
+	Addr  string
 	Wdir  string
 }
 
