@@ -26,14 +26,15 @@ func (p *FS) runRsync() error {
 		}
 
 		dst := fmt.Sprintf("root@%s:%s", p.addr, dir)
+		rsyncCmd := "sudo /usr/bin/rsync -avz -e ssh " + dirName + " " + dst
 
-		cmd := exec.Command("rsync", "-avz -e ssh", dirName, dst)
+		cmd := exec.Command("/bin/sh", "-c", rsyncCmd) // this is strange but it works for sudo
 
-		fmt.Println(cmd)
-
-		err = cmd.Run()
+		output, err := cmd.CombinedOutput()
 		if err != nil {
 			fmt.Printf("Rsync failed\n")
+			fmt.Println(cmd)
+			fmt.Println(string(output))
 			return err
 		}
 	}
@@ -46,8 +47,8 @@ func (p *FS) Migrate() error {
 	return p.runRsync()
 }
 
-/*func main () {
-	root := "/home/matthew/ghost/apps/hello_world_criu"
+/*func main() {
+	root := "/tmp/docker_ckpts/SODNKUCXKE"
 	addr := "141.212.110.164"
 
 	phaulFS, err := MakeFS([]string{root}, addr)
@@ -58,5 +59,6 @@ func (p *FS) Migrate() error {
 	err = phaulFS.Migrate()
 	if err != nil {
 		fmt.Printf("Couldn't run rysnc!\n")
+		fmt.Println(err)
 	}
 }*/
