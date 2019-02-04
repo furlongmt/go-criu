@@ -1,5 +1,7 @@
 package phaul
 
+//package main
+
 import (
 	"fmt"
 	"os/exec"
@@ -27,7 +29,7 @@ func (p *FS) runRsync() error {
 
 		dst := fmt.Sprintf("root@%s:%s", p.addr, dir)
 
-		cmd := exec.Command("rsync", "-avz -e ssh", dirName, dst)
+		cmd := exec.Command("/bin/sh", "-c", "\"sudo /usr/bin/rsync", "-avz -e ssh", dirName, dst, "\"")
 
 		fmt.Println(cmd)
 
@@ -46,8 +48,8 @@ func (p *FS) Migrate() error {
 	return p.runRsync()
 }
 
-/*func main () {
-	root := "/home/matthew/ghost/apps/hello_world_criu"
+/*func main() {
+	root := "/tmp/docker_ckpts/SODNKUCXKE"
 	addr := "141.212.110.164"
 
 	phaulFS, err := MakeFS([]string{root}, addr)
