@@ -43,19 +43,19 @@ func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStat
 	}
 
 	if iter >= maxIters {
-		fmt.Printf("`- max iters reached\n")
+		fmt.Printf("`- max iters reached, iter (%d)\n", iter)
 		return true
 	}
 
 	pagesWritten := stats.GetPagesWritten()
 	if pagesWritten < minPagesWritten {
-		fmt.Printf("`- tiny pre-dump (%d) reached\n", int(pagesWritten))
+		fmt.Printf("`- tiny pre-dump (%d) reached, iter (%d)\n", iter, int(pagesWritten))
 		return true
 	}
 
 	pagesDelta := calcGrowRate(int64(pagesWritten), int64(prevStats.GetPagesWritten()))
 	if pagesDelta >= maxGrowDelta {
-		fmt.Printf("`- grow iter (%d) reached\n", int(pagesDelta))
+		fmt.Printf("`- grow iter (%d) reached, iter(%d)\n", iter, int(pagesDelta))
 		return true
 	}
 
