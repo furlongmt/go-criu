@@ -36,6 +36,12 @@ func calcGrowRate(value int64, prevValue int64) float64 {
 }
 
 func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStatsEntry) bool {
+
+	// we should check to make sure we have some previous stats first
+	if prevStats.GetPagesWritten() == uint64(0) {
+		return false
+	}
+
 	if iter >= maxIters {
 		fmt.Printf("`- max iters reached\n")
 		return true
