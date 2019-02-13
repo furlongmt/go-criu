@@ -3,15 +3,15 @@ package phaul
 import (
 	"fmt"
 
-	"github.com/checkpoint-restore/go-criu"
+	criu "github.com/checkpoint-restore/go-criu"
 	"github.com/checkpoint-restore/go-criu/rpc"
 	"github.com/checkpoint-restore/go-criu/stats"
 	"github.com/golang/protobuf/proto"
 )
 
-const minPagesWritten uint64 = 64
-const maxIters int = 8
-const maxGrowDelta int64 = 32
+const minPagesWritten uint64 = 64 // minimum number of dumped pages to continue iteration
+const maxIters int = 8            // maximum number of iterations
+const maxGrowDelta float64 = 10   // maximum acceptable growth rate in percentage
 
 // Client struct
 type Client struct {
@@ -30,6 +30,11 @@ func MakePhaulClient(l Local, r Remote, c Config) (*Client, error) {
 	return &Client{local: l, remote: r, cfg: c}, nil
 }
 
+func calcGrowRate(value int64, prevValue int64) float64 {
+	delta := value - prevValue
+	return float64(delta) * 100 / float64(prevValue)
+}
+
 func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStatsEntry) bool {
 	if iter >= maxIters {
 		fmt.Printf("`- max iters reached\n")
@@ -42,7 +47,7 @@ func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStat
 		return true
 	}
 
-	pagesDelta := int64(pagesWritten) - int64(prevStats.GetPagesWritten())
+	pagesDelta := calcGrowRate(int64(pagesWritten), int64(prevStats.GetPagesWritten()))
 	if pagesDelta >= maxGrowDelta {
 		fmt.Printf("`- grow iter (%d) reached\n", int(pagesDelta))
 		return true
@@ -56,7 +61,7 @@ func (pc *Client) Migrate() error {
 	criu := criu.MakeCriu()
 	psi := rpc.CriuPageServerInfo{
 		Address: proto.String(pc.cfg.Addr),
-		Port: proto.Int32(int32(pc.cfg.Port)), 
+		Port:    proto.Int32(int32(pc.cfg.Port)),
 	}
 	opts := rpc.CriuOpts{
 		Pid:      proto.Int32(int32(pc.cfg.Pid)),
