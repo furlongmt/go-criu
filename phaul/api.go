@@ -11,12 +11,16 @@ import (
 // Wdir is the directory where phaul can put images and other stuff
 // Port is the port of the Docker daemon
 // Address is the ip address of the Docker daemon
+// Exit determines whether or not we want to exit after checkpoint
+// OpenTCP determines whether to checkpoint open tcp sockets
 type Config struct {
-	Pid   int
-	Memfd int
-	Port  int32
-	Addr  string
-	Wdir  string
+	Pid     int
+	Memfd   int
+	Port    int32
+	Addr    string
+	Wdir    string
+	Exit    bool
+	OpenTcp bool
 }
 
 // Remote interface
