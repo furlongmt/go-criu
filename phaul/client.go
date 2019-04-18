@@ -90,44 +90,46 @@ func (pc *Client) Migrate() error {
 	prevStats := &stats.DumpStatsEntry{}
 	iter := 0
 
-	for {
-		err = pc.remote.StartIter()
-		if err != nil {
-			return err
-		}
+	if pc.cfg.PreDump {
+		for {
+			err = pc.remote.StartIter()
+			if err != nil {
+				return err
+			}
 
-		prevP := imgs.lastImagesDir()
-		imgDir, err := imgs.openNextDir()
-		if err != nil {
-			return err
-		}
+			prevP := imgs.lastImagesDir()
+			imgDir, err := imgs.openNextDir()
+			if err != nil {
+				return err
+			}
 
-		opts.ImagesDirFd = proto.Int32(int32(imgDir.Fd()))
-		if prevP != "" {
-			opts.ParentImg = proto.String(prevP)
-		}
+			opts.ImagesDirFd = proto.Int32(int32(imgDir.Fd()))
+			if prevP != "" {
+				opts.ParentImg = proto.String(prevP)
+			}
 
-		err = criu.PreDump(opts, nil)
-		imgDir.Close()
-		if err != nil {
-			return err
-		}
+			err = criu.PreDump(opts, nil)
+			imgDir.Close()
+			if err != nil {
+				return err
+			}
 
-		err = pc.remote.StopIter()
-		if err != nil {
-			return err
-		}
+			err = pc.remote.StopIter()
+			if err != nil {
+				return err
+			}
 
-		st, err := criuGetDumpStats(imgDir)
-		if err != nil {
-			return err
-		}
+			st, err := criuGetDumpStats(imgDir)
+			if err != nil {
+				return err
+			}
 
-		if isLastIter(iter, st, prevStats) {
-			break
-		}
+			if isLastIter(iter, st, prevStats) {
+				break
+			}
 
-		prevStats = st
+			prevStats = st
+		}
 	}
 
 	err = pc.remote.StartIter()
