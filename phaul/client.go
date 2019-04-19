@@ -65,6 +65,8 @@ func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStat
 // Migrate function
 func (pc *Client) Migrate() error {
 	criu := criu.MakeCriu()
+	prevP := ""
+
 	psi := rpc.CriuPageServerInfo{
 		Address: proto.String(pc.cfg.Addr),
 		Port:    proto.Int32(int32(pc.cfg.Port)),
@@ -97,7 +99,7 @@ func (pc *Client) Migrate() error {
 				return err
 			}
 
-			prevP := imgs.lastImagesDir()
+			prevP = imgs.lastImagesDir()
 			imgDir, err := imgs.openNextDir()
 			if err != nil {
 				return err
