@@ -1,8 +1,6 @@
 package phaul
 
 import (
-	"fmt"
-
 	criu "github.com/checkpoint-restore/go-criu"
 	"github.com/checkpoint-restore/go-criu/rpc"
 	"github.com/checkpoint-restore/go-criu/stats"
@@ -38,13 +36,13 @@ func calcGrowRate(value int64, prevValue int64) float64 {
 func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStatsEntry) bool {
 
 	if iter >= maxIters {
-		fmt.Printf("`- max iters reached, iter (%d)\n", iter)
+		//fmt.Printf("`- max iters reached, iter (%d)\n", iter)
 		return true
 	}
 
 	pagesWritten := stats.GetPagesWritten()
 	if pagesWritten < minPagesWritten {
-		fmt.Printf("`- tiny pre-dump (%d) reached, iter (%d)\n", iter, int(pagesWritten))
+		//fmt.Printf("`- tiny pre-dump (%d) reached, iter (%d)\n", iter, int(pagesWritten))
 		return true
 	}
 
@@ -53,7 +51,7 @@ func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStat
 
 		pagesDelta := calcGrowRate(int64(pagesWritten), int64(prevPagesWritten))
 		if pagesDelta > maxGrowDelta {
-			fmt.Printf("`- grow iter (%d) reached, iter(%d)\n", iter, int(pagesDelta))
+			//fmt.Printf("`- grow iter (%d) reached, iter(%d)\n", iter, int(pagesDelta))
 			return true
 		}
 	}
