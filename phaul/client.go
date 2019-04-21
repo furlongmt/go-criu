@@ -65,10 +65,17 @@ func isLastIter(iter int, stats *stats.DumpStatsEntry, prevStats *stats.DumpStat
 func (pc *Client) Migrate() error {
 	criu := criu.MakeCriu()
 	prevP := ""
+	var psi rpc.CriuPageServerInfo
 
-	psi := rpc.CriuPageServerInfo{
-		Address: proto.String(pc.cfg.Addr),
-		Port:    proto.Int32(int32(pc.cfg.Port)),
+	if pc.cfg.Clientfd == 0 {
+		psi = rpc.CriuPageServerInfo{
+			Address: proto.String(pc.cfg.Addr),
+			Port:    proto.Int32(int32(pc.cfg.Port)),
+		}
+	} else {
+		psi = rpc.CriuPageServerInfo{
+			Fd: proto.Int32(int32(pc.cfg.Clientfd)),
+		}
 	}
 	opts := rpc.CriuOpts{
 		Pid:      proto.Int32(int32(pc.cfg.Pid)),

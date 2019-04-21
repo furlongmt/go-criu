@@ -28,7 +28,8 @@ func (p *FS) runRsync() error {
 		}
 
 		dst := fmt.Sprintf("root@%s:%s", p.addr, dir)
-		rsyncCmd := "sudo /usr/bin/rsync -avz -e ssh " + dirName + " " + dst
+		// -L will follow the symbolic links
+		rsyncCmd := "sudo /usr/bin/rsync -avz -L -e ssh " + dirName + " " + dst
 
 		cmd := exec.Command("/bin/sh", "-c", rsyncCmd) // this is strange but it works for sudo
 

@@ -36,11 +36,17 @@ func MakePhaulServer(c Config) (*Server, error) {
 //
 // StartIter phaul.Remote methods
 func (s *Server) StartIter() error {
-	fmt.Printf("S: start iter\n")
-	psi := rpc.CriuPageServerInfo{
-		//Fd: proto.Int32(int32(s.cfg.Memfd)),
-		Address: proto.String(s.cfg.Addr),
-		Port:    proto.Int32(int32(s.cfg.Port)),
+	var psi rpc.CriuPageServerInfo
+
+	if s.cfg.Serverfd == 0 {
+		psi = rpc.CriuPageServerInfo{
+			Address: proto.String(s.cfg.Addr),
+			Port:    proto.Int32(int32(s.cfg.Port)),
+		}
+	} else { // use fd
+		psi = rpc.CriuPageServerInfo{
+			Fd: proto.Int32(int32(s.cfg.Serverfd)),
+		}
 	}
 	opts := rpc.CriuOpts{
 		LogLevel: proto.Int32(4),
@@ -97,7 +103,7 @@ func (s *Server) StopIter() error {
 // Kill page server
 func (s *Server) KillPageServer() error {
 	err := s.process.Kill()
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to kill page-server: %s", s)
 	}
